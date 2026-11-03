@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monitoreo de secado y almacenamiento de granos</title>
+<!-- Tipografías llamativas: Righteous (títulos y números) + Poppins (texto) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Righteous&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/extra.css">
+</head>
+<body>
+<header>
+  <div><h1>Secado y almacenamiento de granos</h1><p>Ubaté, Cundinamarca · Universidad de Cundinamarca</p></div>
+  <div class="conn"><span id="estado" class="badge demo">Modo demostración</span>
+    <input id="ip" placeholder="IP del ESP32 (ej. 192.168.1.50)">
+    <button id="btnConectar">Conectar</button>
+    <button id="btnDemo" class="sec">Usar demo</button></div>
+</header>
+<main>
+  <section id="alertas" class="panel"><h2>Alertas</h2><ul id="listaAlertas"></ul></section>
+  <section class="grid">
+    <article class="card"><h3>Temperatura</h3><b id="vTemp">--</b><small>°C</small></article>
+    <article class="card"><h3>Humedad del aire</h3><b id="vHum">--</b><small>%</small></article>
+    <article class="card"><h3>Calidad del aire</h3><b id="vGas">--</b><small id="nGas"></small></article>
+    <article class="card"><h3>Luz solar</h3><b id="vLuz">--</b><small>%</small></article>
+    <article class="card"><h3>Lluvia</h3><b id="vLluvia">--</b><small id="nLluvia"></small></article>
+    <article class="card"><h3>Movimiento</h3><b id="vPir">--</b><small>sensor PIR</small></article>
+    <article class="card"><h3>Nivel del producto</h3><b id="vNivel">--</b><small id="nNivel">%</small></article>
+    <article class="card ctl"><h3>Cubierta del patio</h3><b id="vCub">--</b>
+      <div><button id="bAbrir">Abrir</button><button id="bCerrar" class="sec">Cerrar</button></div>
+      <label><input type="checkbox" id="chkAuto"> Cierre automático con lluvia</label></article>
+  </section>
+  <section class="panel"><h2>Últimas mediciones</h2><canvas id="graf" width="900" height="260"></canvas>
+    <p class="leyenda"><i style="background:#2B6CB0"></i>Humedad <i style="background:#C98A00"></i>Temperatura <i style="background:#2F7D4A"></i>Luz <i style="background:#7A4E9E"></i>Aire (gases)</p></section>
+  <section class="two">
+    <div class="panel"><h2>Registro de eventos</h2><ul id="log"></ul></div>
+    <div class="panel"><h2>Lote y umbrales</h2>
+      <label>Lote <input id="lote" value="Lote 1"></label>
+      <div class="cfg">
+        <label>Humedad máx. (%)<input type="number" data-k="hum"></label>
+        <label>Gases máx. (0-4095)<input type="number" data-k="gas"></label>
+        <label>Lecturas seguidas<input type="number" data-k="sost"></label>
+        <label>Nivel mín. (%)<input type="number" data-k="nivelMin"></label>
+        <label>Silo vacío (cm)<input type="number" data-k="vacio"></label>
+        <label>Silo lleno (cm)<input type="number" data-k="lleno"></label>
+        <label>Horario desde (h)<input type="number" data-k="h1"></label>
+        <label>Horario hasta (h)<input type="number" data-k="h2"></label>
+      </div>
+      <button id="btnCsv">Descargar datos (CSV)</button></div>
+  </section>
+</main>
+<script src="js/main.js"></script>
+<script src="js/efectos.js"></script>
+</body>
+</html>
