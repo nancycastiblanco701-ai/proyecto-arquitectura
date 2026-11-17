@@ -3,56 +3,227 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Monitoreo de secado y almacenamiento de granos</title>
-<!-- Tipografías llamativas: Righteous (títulos y números) + Poppins (texto) -->
+<title>AgroSecado IoT | Sistema inteligente poscosecha</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Righteous&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/extra.css">
 </head>
 <body>
-<header>
-  <div><h1>Secado y almacenamiento de granos</h1><p>Ubaté, Cundinamarca · Universidad de Cundinamarca</p></div>
-  <div class="conn"><span id="estado" class="badge demo">Modo demostración</span>
-    <input id="ip" placeholder="IP del ESP32 (ej. 192.168.1.50)">
-    <button id="btnConectar">Conectar</button>
-    <button id="btnDemo" class="sec">Usar demo</button></div>
-</header>
-<main>
-  <section id="alertas" class="panel"><h2>Alertas</h2><ul id="listaAlertas"></ul></section>
-  <section class="grid">
-    <article class="card"><h3>Temperatura</h3><b id="vTemp">--</b><small>°C</small></article>
-    <article class="card"><h3>Humedad del aire</h3><b id="vHum">--</b><small>%</small></article>
-    <article class="card"><h3>Calidad del aire</h3><b id="vGas">--</b><small id="nGas"></small></article>
-    <article class="card"><h3>Luz solar</h3><b id="vLuz">--</b><small>%</small></article>
-    <article class="card"><h3>Lluvia</h3><b id="vLluvia">--</b><small id="nLluvia"></small></article>
-    <article class="card"><h3>Movimiento</h3><b id="vPir">--</b><small>sensor PIR</small></article>
-    <article class="card"><h3>Nivel del producto</h3><b id="vNivel">--</b><small id="nNivel">%</small></article>
-    <article class="card ctl"><h3>Cubierta del patio</h3><b id="vCub">--</b>
-      <div><button id="bAbrir">Abrir</button><button id="bCerrar" class="sec">Cerrar</button></div>
-      <label><input type="checkbox" id="chkAuto"> Cierre automático con lluvia</label></article>
-  </section>
-  <section class="panel"><h2>Últimas mediciones</h2><canvas id="graf" width="900" height="260"></canvas>
-    <p class="leyenda"><i style="background:#2B6CB0"></i>Humedad <i style="background:#C98A00"></i>Temperatura <i style="background:#2F7D4A"></i>Luz <i style="background:#7A4E9E"></i>Aire (gases)</p></section>
-  <section class="two">
-    <div class="panel"><h2>Registro de eventos</h2><ul id="log"></ul></div>
-    <div class="panel"><h2>Lote y umbrales</h2>
-      <label>Lote <input id="lote" value="Lote 1"></label>
-      <div class="cfg">
-        <label>Humedad máx. (%)<input type="number" data-k="hum"></label>
-        <label>Gases máx. (0-4095)<input type="number" data-k="gas"></label>
-        <label>Lecturas seguidas<input type="number" data-k="sost"></label>
-        <label>Nivel mín. (%)<input type="number" data-k="nivelMin"></label>
-        <label>Silo vacío (cm)<input type="number" data-k="vacio"></label>
-        <label>Silo lleno (cm)<input type="number" data-k="lleno"></label>
-        <label>Horario desde (h)<input type="number" data-k="h1"></label>
-        <label>Horario hasta (h)<input type="number" data-k="h2"></label>
+<div class="progreso" id="progreso"></div>
+
+<nav class="navbar" aria-label="Navegación principal">
+  <div class="wrap nav-in">
+    <a href="#inicio" class="brand"><span class="logo">AS</span><span><strong>AgroSecado IoT</strong><small>Ubaté · Cundinamarca</small></span></a>
+    <button class="nav-toggle" id="navToggle" aria-label="Abrir menú">Menú</button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#problema">Problemática</a></li>
+      <li><a href="#convenios">Convenios</a></li>
+      <li><a href="#metodologia">Metodología</a></li>
+      <li><a href="#sensores-info">Hardware</a></li>
+      <li><a href="#nosotros">Nosotros</a></li>
+      <li><a href="#probar-sensores" class="cta">Consola en vivo</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section id="inicio" class="hero">
+  <div class="wrap hero-grid">
+    <div class="reveal">
+      <span class="pill">Innovación tecnológica · Universidad de Cundinamarca</span>
+      <h1>Que la lluvia no se lleve tu <span class="rot" id="rot">cosecha</span></h1>
+      <p class="lead">Un sistema inteligente que vigila tu grano las 24 horas, cierra la cubierta cuando llueve y te avisa al celular antes de que el moho aparezca.</p>
+      <div class="acciones">
+        <a href="#probar-sensores" class="btn">Probar consola en vivo</a>
+        <a href="#convenios" class="btn btn-claro">Ver convenios</a>
       </div>
-      <button id="btnCsv">Descargar datos (CSV)</button></div>
-  </section>
-</main>
+      <div class="stats">
+        <div><strong>24/7</strong><span>Monitoreo activo</span></div>
+        <div><strong>&lt; 2 s</strong><span>Respuesta a lluvia</span></div>
+        <div><strong>CSV</strong><span>Trazabilidad por lote</span></div>
+      </div>
+    </div>
+    <div class="slider reveal" id="heroSlider">
+      <div class="slide active"><img src="img/grano1.jpg" alt="Granos de calidad"><p>Monitoreo de lotes de alta calidad</p></div>
+      <div class="slide"><img src="img/grano2.jpg" alt="Proceso poscosecha"><p>Optimización del proceso poscosecha</p></div>
+      <div class="slide"><img src="img/grano3.jpg" alt="Protección contra humedad"><p>Protección integral contra la humedad</p></div>
+      <div class="slide"><img src="img/grano4.jpg" alt="Tecnología agro"><p>Tecnología aplicada al agro cundinamarqués</p></div>
+      <button class="s-btn prev" id="sliderPrev" aria-label="Anterior">&#10094;</button>
+      <button class="s-btn next" id="sliderNext" aria-label="Siguiente">&#10095;</button>
+      <div class="dots"><span class="dot active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+    </div>
+  </div>
+</section>
+
+<div class="ticker" aria-hidden="true"><div class="ticker-in"><span>Monitoreo 24/7</span><span>Cubierta automática</span><span>Alertas al celular</span><span>Trazabilidad por lote</span><span>Menos pérdidas</span><span>Tecnología para el campo</span><span>Monitoreo 24/7</span><span>Cubierta automática</span><span>Alertas al celular</span><span>Trazabilidad por lote</span><span>Menos pérdidas</span><span>Tecnología para el campo</span></div></div>
+
+<section class="impacto"><div class="wrap">
+  <p class="impacto-t reveal">Cerca del <strong>14 %</strong> de los alimentos del mundo se pierde entre la cosecha y la venta (FAO, 2019). Esta es nuestra respuesta.</p>
+  <div class="contadores">
+    <div class="reveal"><strong data-n="14" data-suf=" %">0</strong><span>de pérdida poscosecha mundial</span></div>
+    <div class="reveal"><strong data-n="6">0</strong><span>sensores vigilando tu grano</span></div>
+    <div class="reveal"><strong data-n="24" data-suf="/7">0</strong><span>monitoreo continuo</span></div>
+    <div class="reveal"><strong data-n="2" data-pre="&lt; " data-suf=" s">0</strong><span>para reaccionar a la lluvia</span></div>
+  </div></div></section>
+
+<section id="convenios" class="sec alt">
+  <div class="wrap">
+    <div class="head reveal"><span class="tag">Contexto local</span><h2>AgroSecado IoT en Ubaté</h2><p>Una propuesta académica pensada para el contexto agropecuario de Ubaté, Cundinamarca.</p></div>
+    <div class="grid2">
+      <article class="tarjeta reveal"><div class="media"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e9/Bosque._Ubat%C3%A9%2C_Colombia._20100511.JPG" alt="Bosque nativo en Ubaté, Cundinamarca" loading="lazy" referrerpolicy="no-referrer"></div>
+        <div class="cuerpo"><h3>Territorio y producción local</h3><p>Ubaté es el contexto territorial de esta propuesta para apoyar el secado y almacenamiento de granos.</p><a class="photo-credit" href="https://commons.wikimedia.org/wiki/File:Bosque._Ubat%C3%A9,_Colombia._20100511.JPG" target="_blank" rel="noopener noreferrer">Fotografía: KarlitoX · Wikimedia Commons · CC BY-SA 4.0</a></div></article>
+      <article class="tarjeta reveal"><div class="media"><video controls muted loop playsinline><source src="video/convenioempresa.mp4" type="video/mp4"></video></div>
+        <div class="cuerpo"><h3>Propuesta de colaboración</h3><p>El prototipo busca aportar al trabajo de productores y actores agrícolas de la región. Los convenios y validaciones se presentarán cuando estén confirmados.</p><span class="chip">Proyecto académico</span></div></article>
+    </div>
+  </div>
+</section>
+
+<section id="problema" class="sec">
+  <div class="wrap">
+    <div class="head reveal"><span class="tag">Diagnóstico de riesgos</span><h2>Vulnerabilidades críticas de la poscosecha tradicional</h2><p>Mermas causadas por el clima y por un almacenamiento deficiente.</p></div>
+    <div class="grid2 videos">
+      <figure class="tarjeta reveal"><video controls autoplay muted loop playsinline poster="img/granos15.jpg"><source src="video/Videogranos.mp4" type="video/mp4"></video><figcaption>Proceso de selección y muestreo</figcaption></figure>
+      <figure class="tarjeta reveal"><video controls autoplay muted loop playsinline poster="img/grano16.jpg"><source src="video/videogranos5.mp4" type="video/mp4"></video><figcaption>Análisis de calidad del grano</figcaption></figure>
+    </div>
+    <div class="grid4">
+      <article class="tarjeta reveal"><div class="media corta"><img src="img/grano5.png" alt="Lluvias imprevistas"></div><div class="cuerpo"><h3>Lluvias imprevistas</h3><p>El agua sobre el grano extendido aumenta la humedad y favorece el moho.</p></div></article>
+      <article class="tarjeta reveal"><div class="media corta"><img src="img/grano6.jpg" alt="Condensación"></div><div class="cuerpo"><h3>Condensación en silos</h3><p>El aire saturado eleva la temperatura interna y deteriora el producto.</p></div></article>
+      <article class="tarjeta reveal"><div class="media corta"><img src="img/grano7.jpg" alt="Plagas"></div><div class="cuerpo"><h3>Control de plagas</h3><p>El sensor de gases ayuda a detectar a tiempo focos de deterioro en bodegas cerradas.</p></div></article>
+      <article class="tarjeta reveal"><div class="media corta"><img src="img/grano8.jpg" alt="Respuesta autónoma"></div><div class="cuerpo"><h3>Respuesta autónoma</h3><p>La cubierta protectora se mueve de inmediato según los sensores del clima.</p></div></article>
+    </div>
+  </div>
+</section>
+
+<section id="solucion" class="sec alt">
+  <div class="wrap">
+    <div class="head reveal"><span class="tag">Arquitectura ciberfísica</span><h2>Supervisión dual por zonas operativas</h2><p>Estrategia de control para mantener estables las condiciones del grano.</p></div>
+    <div class="tabs reveal">
+      <div class="tabs-nav" role="tablist">
+        <button class="tab-btn active" data-tab="tab-patio" type="button">Zona 1 · Patio de secado</button>
+        <button class="tab-btn" data-tab="tab-bodega" type="button">Zona 2 · Bodega de almacenamiento</button>
+      </div>
+      <div class="tab-panel active" id="tab-patio"><div class="split">
+        <div><h3>Protección activa frente al clima</h3><p>El nodo central procesa el entorno exterior y acciona la cubierta antes de que el agua alcance el grano.</p>
+          <ul class="checks"><li><strong>Sensor HW-038:</strong> detecta las gotas de lluvia en milisegundos.</li><li><strong>Servomotor de cubierta:</strong> desplaza el techo protector de forma automática.</li><li><strong>Fotorresistencia:</strong> evalúa la luz solar útil para el secado.</li></ul></div>
+        <div class="destacado"><img src="img/grano9.jpg" alt="Patio de secado"><div><span class="chip claro">Modo autónomo</span><h4>Cierre de seguridad sincronizado</h4><p>Protege el producto sin necesidad de un operario presente.</p></div></div>
+      </div></div>
+      <div class="tab-panel" id="tab-bodega"><div class="split">
+        <div><h3>Conservación y trazabilidad en recinto cerrado</h3><p>Variables vigiladas para que el grano almacenado conserve sus propiedades comerciales.</p>
+          <ul class="checks"><li><strong>Sensor MQ-135:</strong> gases de fermentación y calidad del aire.</li><li><strong>Sensor HC-SR04:</strong> nivel de llenado del silo.</li><li><strong>Sensor PIR:</strong> accesos no autorizados.</li></ul></div>
+        <div class="destacado"><img src="img/grano10.jpg" alt="Bodega segura"><div><span class="chip claro">Reportes</span><h4>Exportación de datos a CSV</h4><p>Historial por lote listo para auditorías de calidad.</p></div></div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<section id="sensores-info" class="sec">
+  <div class="wrap">
+    <div class="head reveal"><span class="tag">Componentes físicos</span><h2>Hardware accesible y confiable</h2><p>Módulos seleccionados por su costo, disponibilidad y desempeño.</p></div>
+    <div class="grid4">
+      <article class="tarjeta reveal"><div class="media corta"><img src="img/sp32.jpg" alt="Placa de desarrollo ESP32"></div><div class="cuerpo"><span class="chip">Procesamiento</span><h3>Microcontrolador ESP32</h3><p>Lee las señales de los sensores y comunica las mediciones al panel mediante Wi-Fi.</p></div></article>
+      <article class="tarjeta reveal"><div class="media corta"><img src="img/sensor%20de%20lluvia.jpg" alt="Sensor de lluvia"></div><div class="cuerpo"><span class="chip">Patio</span><h3>Sensor de lluvia HW-038</h3><p>Detecta humedad superficial para reaccionar al instante.</p></div></article>
+      <article class="tarjeta reveal"><div class="media corta contener"><img src="img/servomotor.png" alt="Servomotor"></div><div class="cuerpo"><span class="chip">Actuador</span><h3>Servomotor de cubierta</h3><p>Control angular preciso para mover el techo.</p></div></article>
+      <article class="tarjeta reveal"><div class="media corta contener"><img src="img/ultrasonico.png" alt="Ultrasónico"></div><div class="cuerpo"><span class="chip">Bodega</span><h3>Sensor HC-SR04</h3><p>Mide el nivel del producto sin contacto.</p></div></article>
+      <article class="tarjeta reveal"><div class="media corta hardware-icon"><svg viewBox="0 0 180 120" role="img" aria-label="Ilustración de un sensor de movimiento PIR"><rect x="25" y="24" width="130" height="72" rx="8" fill="#6A7D65"/><circle cx="90" cy="58" r="31" fill="#F7F5F0" stroke="#D1B3C4" stroke-width="5"/><path d="M66 61c9-16 39-16 48 0-5 12-15 19-24 19S71 73 66 61Z" fill="#D1B3C4"/><circle cx="46" cy="39" r="4" fill="#fff"/><circle cx="134" cy="39" r="4" fill="#fff"/><path d="M48 96v13m84-13v13" stroke="#1C2622" stroke-width="5" stroke-linecap="round"/></svg></div><div class="cuerpo"><span class="chip">Bodega</span><h3>Sensor de movimiento PIR</h3><p>Detecta movimiento en el área de almacenamiento para apoyar la vigilancia del recinto.</p></div></article>
+      <article class="tarjeta reveal"><div class="media corta hardware-icon"><svg viewBox="0 0 180 120" role="img" aria-label="Ilustración de un sensor de gases MQ-135"><rect x="28" y="28" width="124" height="72" rx="7" fill="#6A7D65"/><rect x="68" y="17" width="44" height="39" rx="12" fill="#C4BCB2" stroke="#59635C" stroke-width="4"/><path d="M77 26v20m9-20v20m9-20v20m9-20v20" stroke="#59635C" stroke-width="3"/><circle cx="90" cy="74" r="14" fill="#F7F5F0" stroke="#C4BCB2" stroke-width="5"/><circle cx="46" cy="48" r="4" fill="#F7F5F0"/><circle cx="134" cy="48" r="4" fill="#F7F5F0"/><path d="M54 100v11m72-11v11" stroke="#1C2622" stroke-width="5" stroke-linecap="round"/></svg></div><div class="cuerpo"><span class="chip">Bodega</span><h3>Sensor de gas MQ-135</h3><p>Registra cambios relativos en la composición del aire para generar alertas preventivas; requiere calibración y no mide ppm directamente.</p></div></article>
+    </div>
+  </div>
+</section>
+
+<section id="metodologia" class="sec">
+  <div class="wrap">
+    <div class="head reveal"><span class="tag">Nuestra metodología</span><h2>Design Thinking: diseñar con las personas, no para las personas</h2><p>Cinco fases para llegar a una solución útil. Toca cada paso para conocerlo.</p></div>
+    <div class="linea reveal" id="linea">
+      <button class="paso active" data-p="0" type="button"><span>1</span>Empatizar</button>
+      <button class="paso" data-p="1" type="button"><span>2</span>Definir</button>
+      <button class="paso" data-p="2" type="button"><span>3</span>Idear</button>
+      <button class="paso" data-p="3" type="button"><span>4</span>Prototipar</button>
+      <button class="paso" data-p="4" type="button"><span>5</span>Evaluar</button>
+    </div>
+    <div class="paso-info reveal"><h3 id="pasoT">Empatizar</h3><p id="pasoD"></p></div>
+  </div>
+</section>
+
+<section id="probar-sensores" class="sec consola">
+  <div class="wrap">
+    <div class="head reveal"><span class="tag">Consola en tiempo real</span><h2>Panel de control del nodo ESP32</h2><p>Conecte el dispositivo con su dirección IP en la red local o active el modo demostración para validar umbrales y alertas.</p>
+      <div class="pasos"><div><span>1</span>Ingrese la IP del ESP32</div><div><span>2</span>Conectar o usar demo</div><div><span>3</span>Validar y exportar CSV</div></div></div>
+
+    <header class="dashboard-header">
+      <div><h1>Sistema de monitoreo de secado de granos</h1><p>Proyecto universitario · Ubaté, Cundinamarca · Universidad de Cundinamarca</p></div>
+      <div class="conn">
+        <span id="estado" class="badge demo">Modo demostración</span>
+        <input id="ip" placeholder="IP del ESP32 (ej. 192.168.1.50)">
+        <button id="btnConectar">Conectar</button>
+        <button id="btnDemo" class="sec">Usar demo</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="alertas" class="panel"><h2>Alertas</h2><ul id="listaAlertas"></ul></section>
+      <section class="grid">
+        <article class="card"><h3>Temperatura</h3><b id="vTemp">--</b><small>°C</small></article>
+        <article class="card"><h3>Humedad del aire</h3><b id="vHum">--</b><small>%</small></article>
+        <article class="card"><h3>Calidad del aire</h3><b id="vGas">--</b><small id="nGas"></small></article>
+        <article class="card"><h3>Iluminación (fotorresistencia)</h3><b id="vLuz">--</b><small>relativa · %</small></article>
+        <article class="card"><h3>Sensor de lluvia HW-038</h3><b id="vLluvia">--</b><small id="nLluvia">DO · GPIO 26</small></article>
+        <article class="card"><h3>Movimiento</h3><b id="vPir">--</b><small>sensor PIR</small></article>
+        <article class="card"><h3>Nivel del producto</h3><b id="vNivel">--</b><small id="nNivel">%</small></article>
+        <article class="card ctl"><h3>Cubierta del patio</h3><b id="vCub">--</b>
+          <div><button id="bAbrir">Abrir</button><button id="bCerrar" class="sec">Cerrar</button></div>
+          <label><input type="checkbox" id="chkAuto"> Cierre automático con lluvia</label></article>
+      </section>
+      <section class="panel"><h2>Últimas mediciones</h2><canvas id="graf" width="900" height="260"></canvas>
+        <p class="leyenda"><i style="background:#2B6CB0"></i>Humedad <i style="background:#C98A00"></i>Temperatura <i style="background:#2F7D4A"></i>Fotorresistencia <i style="background:#7A4E9E"></i>Aire (gases)</p></section>
+      <section class="two">
+        <div class="panel"><h2>Registro de eventos</h2><ul id="log"></ul></div>
+        <div class="panel"><h2>Lote y umbrales</h2>
+          <label>Lote <input id="lote" value="Lote 1"></label>
+          <div class="cfg">
+            <label>Humedad máx. (%)<input type="number" data-k="hum"></label>
+            <label>Gases máx. (0-4095)<input type="number" data-k="gas"></label>
+            <label>Lecturas seguidas<input type="number" data-k="sost"></label>
+            <label>Nivel mín. (%)<input type="number" data-k="nivelMin"></label>
+            <label>Silo vacío (cm)<input type="number" data-k="vacio"></label>
+            <label>Silo lleno (cm)<input type="number" data-k="lleno"></label>
+            <label>Horario desde (h)<input type="number" data-k="h1"></label>
+            <label>Horario hasta (h)<input type="number" data-k="h2"></label>
+          </div>
+          <button id="btnCsv">Descargar datos (CSV)</button></div>
+      </section>
+    </main>
+  </div>
+</section>
+
+<section id="nosotros" class="sec alt">
+  <div class="wrap">
+    <div class="head reveal"><span class="tag">Quiénes somos</span><h2>Estudiantes que llevan la tecnología al campo</h2><p>Equipo de Ingeniería de Sistemas y Computación de la Universidad de Cundinamarca, Seccional Ubaté.</p></div>
+    <div class="grid3 equipo">
+      <article class="persona reveal"><span class="avatar">NC</span><h3>Nancy Castiblanco</h3><p>Ingeniería de Sistemas y Computación<br>4.º semestre · Universidad de Cundinamarca</p></article>
+      <article class="persona reveal"><span class="avatar">YS</span><h3>Yeiner Sánchez</h3><p>Ingeniería de Sistemas y Computación<br>4.º semestre · Universidad de Cundinamarca</p></article>
+      <article class="persona reveal"><span class="avatar">JC</span><h3>Juan Corredor</h3><p>Ingeniería de Sistemas y Computación<br>4.º semestre · Universidad de Cundinamarca</p></article>
+      <article class="persona reveal"><span class="avatar">JB</span><h3>Junior Ballesteros</h3><p>Ingeniería de Sistemas y Computación<br>4.º semestre · Universidad de Cundinamarca</p></article>
+    </div>
+    <div class="grid2 mv">
+      <article class="mision reveal"><h3>Nuestra misión</h3><p>Desarrollar soluciones IoT accesibles que protejan la cosecha de los productores rurales de Ubaté durante el secado y el almacenamiento, reduciendo pérdidas y acercando la tecnología al campo.</p></article>
+      <article class="mision reveal"><h3>Nuestra visión</h3><p>Ser un referente regional en tecnología poscosecha de bajo costo, con un sistema probado en campo que pueda replicarse en veredas y asociaciones de productores de Cundinamarca.</p></article>
+    </div>
+  </div>
+</section>
+
+<section id="contacto" class="cta-band"><div class="wrap cta-in reveal">
+  <div><h2>¿Quieres proteger tu cosecha?</h2><p>Escríbenos y te contamos cómo AgroSecado IoT puede funcionar en tu finca o bodega.</p></div>
+  <a href="#" class="btn btn-wa" data-wa="Hola, quiero información sobre AgroSecado IoT">Escribir por WhatsApp</a>
+</div></section>
+
+<footer class="footer">
+  <div class="wrap foot-in">
+    <div><strong>AgroSecado IoT</strong><p>Sistema inteligente de monitoreo ambiental y automatización poscosecha · Ingeniería de Sistemas y Computación · Universidad de Cundinamarca, Seccional Ubaté.</p></div>
+    <a href="#probar-sensores" class="btn">Volver al panel</a>
+  </div>
+</footer>
+
 <script src="js/main.js"></script>
-<script src="js/efectos.js"></script>
+<script src="js/funcionalidades.js"></script>
 </body>
 </html>

@@ -128,12 +128,15 @@ $("btnDemo").onclick = () => {
 function procesar(d) {
   const aire =
     d.gas <= cfg.gas * 0.6 ? "Buena" : d.gas <= cfg.gas ? "Regular" : "Mala";
-  const nivel = Math.round(
-    Math.min(
-      100,
-      Math.max(0, ((cfg.vacio - d.dist) / (cfg.vacio - cfg.lleno)) * 100),
-    ),
-  );
+  const distanciaValida = Number.isFinite(d.dist) && d.dist >= 0;
+  const nivel = distanciaValida
+    ? Math.round(
+        Math.min(
+          100,
+          Math.max(0, ((cfg.vacio - d.dist) / (cfg.vacio - cfg.lleno)) * 100),
+        ),
+      )
+    : null;
   $("vTemp").textContent = d.temp.toFixed(1);
   $("vHum").textContent = Math.round(d.hum);
   $("vGas").textContent = aire;
@@ -141,8 +144,10 @@ function procesar(d) {
   $("vLuz").textContent = Math.round(d.luz);
   $("vLluvia").textContent = d.lluvia ? "Lloviendo" : "Seco";
   $("vPir").textContent = d.pir ? "Detectado" : "Sin movimiento";
-  $("vNivel").textContent = nivel;
-  $("nNivel").textContent = "% (" + Math.round(d.dist) + " cm al sensor)";
+  $("vNivel").textContent = nivel === null ? "--" : nivel;
+  $("nNivel").textContent = distanciaValida
+    ? "% (" + Math.round(d.dist) + " cm al sensor)"
+    : "Sin lectura del sensor";
   $("vCub").textContent = d.cubierta === "cerrada" ? "Cerrada" : "Abierta";
   $("chkAuto").checked = d.modo === "auto";
 
@@ -168,8 +173,13 @@ function procesar(d) {
       "Movimiento en la bodega fuera del horario permitido.",
       "crit",
     ],
+    sensorNivel: [
+      !distanciaValida,
+      "Sin lectura del sensor de nivel; revisa el ultrasonido y su cableado.",
+      "warn",
+    ],
     nivel: [
-      nivel < cfg.nivelMin,
+      distanciaValida && nivel < cfg.nivelMin,
       "Nivel del producto bajo (" + nivel + " %).",
       "warn",
     ],
@@ -195,6 +205,7 @@ function procesar(d) {
     : '<li class="ok">Todo en orden: las condiciones están dentro de los umbrales.</li>';
   $("vHum").parentElement.classList.toggle("alerta", !!activas.hum);
   $("vGas").parentElement.classList.toggle("alerta", !!activas.moho);
+  $("vNivel").parentElement.classList.toggle("alerta", !!activas.sensorNivel);
 
   const fila = {
     t: new Date(),
@@ -229,8 +240,8 @@ function dibujar() {
     p = 30;
   g.clearRect(0, 0, W, H);
   g.font = "12px sans-serif";
-  g.fillStyle = "#5C6B62";
-  g.strokeStyle = "#D3DCD5";
+  g.fillStyle = "#5B7061";
+  g.strokeStyle = "#D6E1D2";
   for (let v = 0; v <= 100; v += 25) {
     const y = H - p - ((H - 2 * p) * v) / 100;
     g.beginPath();
@@ -240,10 +251,10 @@ function dibujar() {
     g.fillText(v, 4, y + 4);
   }
   [
-    ["hum", "#2B6CB0"],
-    ["temp", "#C98A00"],
-    ["luz", "#2F7D4A"],
-    ["aire", "#7A4E9E"],
+    ["hum", "#245C3A"],
+    ["temp", "#4F855E"],
+    ["luz", "#7AA886"],
+    ["aire", "#A4BCA9"],
   ].forEach(([k, col]) => {
     g.strokeStyle = col;
     g.lineWidth = 2;
